@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.egg-info/
+uv.lock
+*.pyc
+.claude/
+push_*.py
+fix_*.py
+delete_junk.py
+upload.py
+test_env.py

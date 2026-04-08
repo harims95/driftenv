@@ -1,0 +1,84 @@
+name: driftenv
+version: "1.0.0"
+description: >
+  DriftEnv tests whether an AI agent can correctly handle ambiguous
+  instructions and mid-task context shifts inside real AI development
+  workflows. Agents must interpret vague tasks, adapt when requirements
+  change, and complete work correctly under uncertainty.
+
+tags:
+  - openenv
+  - ai-development
+  - ambiguity
+  - context-shift
+  - rl-environment
+
+tasks:
+  - name: easy
+    description: >
+      Agent receives a vague AI development instruction and must correctly
+      interpret what it means technically. No context shift occurs.
+    difficulty: easy
+    max_steps: 1
+    success_threshold: 0.5
+
+  - name: medium
+    description: >
+      Agent receives a vague instruction, begins work, then receives a
+      context shift mid-task. Must correctly interpret the original task
+      AND pivot appropriately when requirements change.
+    difficulty: medium
+    max_steps: 2
+    success_threshold: 0.5
+
+  - name: hard
+    description: >
+      Agent must interpret a vague instruction, handle a context shift,
+      and produce a final complete solution that satisfies both the
+      original and updated requirements. All three phases scored.
+    difficulty: hard
+    max_steps: 3
+    success_threshold: 0.5
+
+observation_space:
+  type: dict
+  fields:
+    instruction:
+      type: string
+      description: The current (possibly vague) task instruction
+    context_shift:
+      type: string
+      nullable: true
+      description: Updated requirements revealed mid-task
+    step:
+      type: integer
+      description: Current step number within the episode
+    history:
+      type: array
+      description: List of previous steps with actions and rewards
+    done:
+      type: boolean
+      description: Whether the episode has ended
+    task:
+      type: string
+      description: Current task difficulty (easy|medium|hard)
+
+action_space:
+  type: dict
+  fields:
+    action:
+      type: string
+      description: Agent's text response to the current observation
+
+reward:
+  type: float
+  range: [0.0, 1.0]
+  values: [0.0, 0.5, 1.0]
+  description: >
+    Per-step reward. 0.0 = wrong, 0.5 = partial, 1.0 = correct.
+    Final score is the average across all steps in the episode.
+
+endpoints:
+  reset: POST /reset
+  step: POST /step
+  state: GET /state
