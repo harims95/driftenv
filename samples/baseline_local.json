@@ -1,0 +1,28 @@
+{
+  "run": "baseline_untrained",
+  "model": "Qwen/Qwen2.5-72B-Instruct",
+  "env_version": "multi-reward-v2",
+  "date": "2026-04-25",
+  "overall_score": 0.472,
+  "tasks": {
+    "easy": {
+      "score": 0.275,
+      "success": false,
+      "steps": 1,
+      "rewards": [0.28]
+    },
+    "medium": {
+      "score": 0.543,
+      "success": true,
+      "steps": 2,
+      "rewards": [0.48, 0.60]
+    },
+    "hard": {
+      "score": 0.597,
+      "success": true,
+      "steps": 3,
+      "rewards": [0.39, 0.77, 0.63]
+    }
+  },
+  "notes": "Untrained Qwen2.5-72B baseline. Model hedges on easy (asks for clarification instead of interpreting). Pivot reward fires correctly on medium/hard — step 2 scores jump vs step 1."
+}
