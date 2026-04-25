@@ -58,10 +58,18 @@ def _score_format(response: str) -> float:
     return 0.0
 
 
-def _score_interpretation(response: str, hidden_interpretation: str) -> float:
-    """R_interpretation: keyword overlap with the hidden correct interpretation."""
+def _extract_unique_keywords(target_text: str, exclusion_text: str) -> list:
+    """Return words >4 letters in target_text that don't appear in exclusion_text.
+    Prevents agents from gaming the score by echoing words from the visible instruction."""
+    excl = set(exclusion_text.lower().split())
+    return [w for w in target_text.lower().split() if len(w) > 4 and w not in excl]
+
+
+def _score_interpretation(response: str, hidden_interpretation: str, exclusion_text: str = "") -> float:
+    """R_interpretation: keyword overlap with hidden_interpretation, excluding
+    words already visible in the instruction/context_shift."""
     resp_lower = response.lower()
-    keywords = [w for w in hidden_interpretation.lower().split() if len(w) > 4]
+    keywords = _extract_unique_keywords(hidden_interpretation, exclusion_text)
     if not keywords:
         return 0.0
     hits = sum(1 for kw in keywords if kw in resp_lower)
@@ -69,16 +77,16 @@ def _score_interpretation(response: str, hidden_interpretation: str) -> float:
     return round(min(hits / len(keywords) / 0.4, 1.0), 4)
 
 
-def _score_pivot(response: str, correct_pivot: str, step1_response: Optional[str]) -> float:
-    """R_pivot: on step >= 2, keyword overlap with correct_pivot AND lexical
-    distance from the agent's own step-1 response (proves actual pivot, not luck)."""
+def _score_pivot(response: str, correct_pivot: str, step1_response: Optional[str], exclusion_text: str = "") -> float:
+    """R_pivot: on step >= 2, keyword overlap with correct_pivot (excluding visible
+    words) AND lexical distance from the agent's own step-1 response."""
     if step1_response is None:
         return 0.0
 
     resp_lower = response.lower()
 
-    # (a) keyword overlap with correct pivot
-    keywords = [w for w in correct_pivot.lower().split() if len(w) > 4]
+    # (a) keyword overlap with correct pivot — unique words only
+    keywords = _extract_unique_keywords(correct_pivot, exclusion_text)
     if keywords:
         hits = sum(1 for kw in keywords if kw in resp_lower)
         kw_score = min(hits / len(keywords) / 0.4, 1.0)
@@ -130,9 +138,12 @@ def _compute_reward(
     step1_response: Optional[str],
 ) -> tuple[float, dict]:
     """Compute all 4 reward components and return (weighted_total, components_dict)."""
+    # Words visible to the agent — excluded from keyword pools to close the echo exploit
+    exclusion_text = scenario["initial_instruction"] + " " + (scenario.get("context_shift") or "")
+
     r_fmt    = _score_format(action)
-    r_interp = _score_interpretation(action, scenario["hidden_interpretation"])
-    r_pivot  = _score_pivot(action, scenario["correct_pivot"], step1_response)
+    r_interp = _score_interpretation(action, scenario["hidden_interpretation"], exclusion_text)
+    r_pivot  = _score_pivot(action, scenario["correct_pivot"], step1_response, exclusion_text)
     r_stale  = _score_no_stale(action, scenario.get("wrong_pivots", []), step1_response)
 
     total = round(0.1 * r_fmt + 0.3 * r_interp + 0.4 * r_pivot + 0.2 * r_stale, 4)
