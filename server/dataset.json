@@ -6,7 +6,12 @@
     "hidden_interpretation": "A text classification dataset with 1000 balanced samples across 5 categories for sentiment analysis.",
     "context_shift": "The team just decided to switch from text classification to image recognition. The dataset format needs to change completely.",
     "correct_pivot": "Stop preparing the text dataset. Switch to collecting and labeling image data with bounding boxes for the image recognition model.",
-    "wrong_pivots": ["Continue with text dataset anyway", "Ask no questions and keep going", "Merge text and image data together"]
+    "wrong_pivots": [
+      "Continue with text dataset anyway",
+      "Ask no questions and keep going",
+      "Merge text and image data together"
+    ],
+    "holdout": true
   },
   {
     "id": 2,
@@ -15,7 +20,12 @@
     "hidden_interpretation": "Select a lightweight model optimized for low-latency inference on mobile devices with limited memory.",
     "context_shift": "The deployment target has changed. This will now run on a high-performance cloud server with no memory constraints.",
     "correct_pivot": "Abandon the lightweight model selection. Evaluate larger, more accurate models that maximize performance for cloud deployment.",
-    "wrong_pivots": ["Keep the lightweight model anyway", "Ignore the deployment change", "Pick a random model"]
+    "wrong_pivots": [
+      "Keep the lightweight model anyway",
+      "Ignore the deployment change",
+      "Pick a random model"
+    ],
+    "holdout": false
   },
   {
     "id": 3,
@@ -24,7 +34,12 @@
     "hidden_interpretation": "Set up distributed training across 8 GPUs with gradient checkpointing enabled to handle the large batch size of 512.",
     "context_shift": "Budget cuts mean we only have 1 GPU available for this training run.",
     "correct_pivot": "Reconfigure for single GPU training. Reduce batch size, enable gradient accumulation to simulate larger batches, and adjust learning rate accordingly.",
-    "wrong_pivots": ["Keep the 8 GPU config anyway", "Cancel training entirely", "Ignore the budget constraint"]
+    "wrong_pivots": [
+      "Keep the 8 GPU config anyway",
+      "Cancel training entirely",
+      "Ignore the budget constraint"
+    ],
+    "holdout": true
   },
   {
     "id": 4,
@@ -33,7 +48,12 @@
     "hidden_interpretation": "Evaluate using F1 score and precision-recall curves since this is an imbalanced classification problem.",
     "context_shift": "The stakeholders just clarified they care about inference speed, not just accuracy metrics. Latency is now the primary concern.",
     "correct_pivot": "Add latency benchmarking to the evaluation. Measure p50, p95, p99 inference times alongside F1. Reprioritize the report around speed.",
-    "wrong_pivots": ["Only report F1 score", "Ignore the latency requirement", "Cancel the evaluation"]
+    "wrong_pivots": [
+      "Only report F1 score",
+      "Ignore the latency requirement",
+      "Cancel the evaluation"
+    ],
+    "holdout": false
   },
   {
     "id": 5,
@@ -42,7 +62,12 @@
     "hidden_interpretation": "Deploy as a REST API on AWS with auto-scaling, containerized with Docker, with a 99.9% uptime SLA.",
     "context_shift": "The client requires on-premise deployment with no cloud dependencies due to data privacy regulations.",
     "correct_pivot": "Stop the cloud deployment. Repackage for on-premise deployment. Remove all AWS dependencies and ensure the system runs fully air-gapped.",
-    "wrong_pivots": ["Deploy to AWS anyway", "Ignore the privacy requirement", "Ask no questions and proceed"]
+    "wrong_pivots": [
+      "Deploy to AWS anyway",
+      "Ignore the privacy requirement",
+      "Ask no questions and proceed"
+    ],
+    "holdout": false
   },
   {
     "id": 6,
@@ -50,8 +75,13 @@
     "initial_instruction": "Clean and preprocess the training data.",
     "hidden_interpretation": "Remove duplicates, handle missing values, normalize numerical features, and tokenize text fields for a transformer model.",
     "context_shift": "The data pipeline will now feed into a traditional ML model, not a transformer. Tokenization is not needed.",
-    "correct_pivot": "Skip tokenization. Focus on feature engineering instead — create embeddings using TF-IDF and handle categorical variables with one-hot encoding.",
-    "wrong_pivots": ["Tokenize anyway", "Skip all preprocessing", "Only remove duplicates"]
+    "correct_pivot": "Skip tokenization. Focus on feature engineering instead \u00e2\u20ac\u201d create embeddings using TF-IDF and handle categorical variables with one-hot encoding.",
+    "wrong_pivots": [
+      "Tokenize anyway",
+      "Skip all preprocessing",
+      "Only remove duplicates"
+    ],
+    "holdout": false
   },
   {
     "id": 7,
@@ -60,7 +90,12 @@
     "hidden_interpretation": "Select an open-source multilingual model that supports French, Spanish, and English for a European customer base.",
     "context_shift": "The product is now launching only in the US market. Multilingual support is no longer required.",
     "correct_pivot": "Switch to an English-only model. This opens up better performing, more efficient models optimized specifically for English.",
-    "wrong_pivots": ["Keep the multilingual model anyway", "Use a Chinese language model", "Ignore the market change"]
+    "wrong_pivots": [
+      "Keep the multilingual model anyway",
+      "Use a Chinese language model",
+      "Ignore the market change"
+    ],
+    "holdout": true
   },
   {
     "id": 8,
@@ -69,7 +104,12 @@
     "hidden_interpretation": "Use a low learning rate of 1e-5 with warmup steps for stable fine-tuning of a large pretrained model.",
     "context_shift": "The team wants to train from scratch, not fine-tune. The hyperparameter strategy needs to change completely.",
     "correct_pivot": "Increase learning rate to 1e-3. Remove warmup schedule designed for fine-tuning. Add proper weight initialization and longer training schedule for scratch training.",
-    "wrong_pivots": ["Keep fine-tuning hyperparameters", "Use random hyperparameters", "Skip hyperparameter configuration"]
+    "wrong_pivots": [
+      "Keep fine-tuning hyperparameters",
+      "Use random hyperparameters",
+      "Skip hyperparameter configuration"
+    ],
+    "holdout": false
   },
   {
     "id": 9,
@@ -78,7 +118,12 @@
     "hidden_interpretation": "Implement BLEU score evaluation for a machine translation model with a held-out test set of 5000 sentence pairs.",
     "context_shift": "The model scope changed to summarization, not translation. BLEU is not appropriate for summarization.",
     "correct_pivot": "Replace BLEU with ROUGE scores. Update the test set to document-summary pairs. Add human evaluation samples for qualitative assessment.",
-    "wrong_pivots": ["Keep BLEU score anyway", "Use accuracy metric", "Skip evaluation entirely"]
+    "wrong_pivots": [
+      "Keep BLEU score anyway",
+      "Use accuracy metric",
+      "Skip evaluation entirely"
+    ],
+    "holdout": false
   },
   {
     "id": 10,
@@ -86,8 +131,13 @@
     "initial_instruction": "Set up monitoring for the deployed model.",
     "hidden_interpretation": "Monitor prediction latency, model drift, and data distribution shifts with automated alerts for anomalies.",
     "context_shift": "The model will be retrained daily, so drift monitoring is irrelevant. Focus shifts to training pipeline health monitoring instead.",
-    "correct_pivot": "Drop drift monitoring. Set up training pipeline monitoring instead — track training loss, data ingestion health, and retraining job success rates.",
-    "wrong_pivots": ["Keep drift monitoring anyway", "Monitor nothing", "Only monitor latency"]
+    "correct_pivot": "Drop drift monitoring. Set up training pipeline monitoring instead \u00e2\u20ac\u201d track training loss, data ingestion health, and retraining job success rates.",
+    "wrong_pivots": [
+      "Keep drift monitoring anyway",
+      "Monitor nothing",
+      "Only monitor latency"
+    ],
+    "holdout": false
   },
   {
     "id": 11,
@@ -96,7 +146,12 @@
     "hidden_interpretation": "Scrape and curate 50,000 product reviews from e-commerce sites for a recommendation system.",
     "context_shift": "Legal flagged the web scraping approach. All training data must come from first-party sources only.",
     "correct_pivot": "Stop scraping. Pivot to using internal purchase history, user interaction logs, and opt-in survey data as first-party alternatives.",
-    "wrong_pivots": ["Continue scraping anyway", "Buy data from a broker", "Cancel the data collection"]
+    "wrong_pivots": [
+      "Continue scraping anyway",
+      "Buy data from a broker",
+      "Cancel the data collection"
+    ],
+    "holdout": false
   },
   {
     "id": 12,
@@ -105,7 +160,12 @@
     "hidden_interpretation": "Choose a Vision Transformer for high-accuracy image classification on a large dataset of medical scans.",
     "context_shift": "The medical scan dataset is unavailable due to HIPAA compliance issues. The task pivots to general product image classification.",
     "correct_pivot": "Switch from ViT to a CNN-based architecture like EfficientNet. General product images need different inductive biases than medical scans.",
-    "wrong_pivots": ["Keep the ViT for product images", "Cancel the project", "Use a text model"]
+    "wrong_pivots": [
+      "Keep the ViT for product images",
+      "Cancel the project",
+      "Use a text model"
+    ],
+    "holdout": false
   },
   {
     "id": 13,
@@ -114,7 +174,12 @@
     "hidden_interpretation": "Set up a PyTorch training loop with mixed precision training on 4 A100 GPUs for a 7B parameter model.",
     "context_shift": "The team switched to JAX and TPUs. PyTorch setup is incompatible with the new infrastructure.",
     "correct_pivot": "Stop the PyTorch setup. Rewrite the training loop in JAX with Flax. Configure TPU-compatible data loading and checkpointing.",
-    "wrong_pivots": ["Keep PyTorch setup anyway", "Use TensorFlow instead", "Ignore the infrastructure change"]
+    "wrong_pivots": [
+      "Keep PyTorch setup anyway",
+      "Use TensorFlow instead",
+      "Ignore the infrastructure change"
+    ],
+    "holdout": false
   },
   {
     "id": 14,
@@ -123,7 +188,12 @@
     "hidden_interpretation": "Target 95% accuracy on the test set with less than 100ms inference time for a customer churn prediction model.",
     "context_shift": "The business team clarified that false negatives are extremely costly. Recall must be prioritized over overall accuracy.",
     "correct_pivot": "Change primary metric from accuracy to recall. Accept lower precision to maximize recall. Set minimum recall threshold at 98%.",
-    "wrong_pivots": ["Keep accuracy as primary metric", "Use only inference time as metric", "Ignore the business requirement"]
+    "wrong_pivots": [
+      "Keep accuracy as primary metric",
+      "Use only inference time as metric",
+      "Ignore the business requirement"
+    ],
+    "holdout": true
   },
   {
     "id": 15,
@@ -132,7 +202,12 @@
     "hidden_interpretation": "Export the model to ONNX format for cross-platform compatibility and optimize with quantization for edge deployment.",
     "context_shift": "The distribution channel changed. The model will be served via Hugging Face Hub as a full PyTorch checkpoint, not edge deployed.",
     "correct_pivot": "Drop ONNX export and quantization. Package as a standard Hugging Face model with model card, tokenizer config, and proper versioning.",
-    "wrong_pivots": ["Keep ONNX format anyway", "Skip packaging entirely", "Use TensorFlow SavedModel format"]
+    "wrong_pivots": [
+      "Keep ONNX format anyway",
+      "Skip packaging entirely",
+      "Use TensorFlow SavedModel format"
+    ],
+    "holdout": false
   },
   {
     "id": 16,
@@ -141,7 +216,12 @@
     "hidden_interpretation": "Use a stratified 70/15/15 train/validation/test split to maintain class balance across all splits.",
     "context_shift": "The team wants to use k-fold cross validation instead of a fixed split for more robust evaluation.",
     "correct_pivot": "Abandon the fixed split. Implement 5-fold stratified cross validation. Adjust the evaluation pipeline to aggregate metrics across all folds.",
-    "wrong_pivots": ["Keep the fixed split anyway", "Use a random split instead", "Skip validation set entirely"]
+    "wrong_pivots": [
+      "Keep the fixed split anyway",
+      "Use a random split instead",
+      "Skip validation set entirely"
+    ],
+    "holdout": false
   },
   {
     "id": 17,
@@ -150,7 +230,12 @@
     "hidden_interpretation": "Select a small instruction-tuned model under 3B parameters that can run efficiently on a single consumer GPU.",
     "context_shift": "The compute budget increased significantly. The team now wants the highest quality output possible regardless of model size.",
     "correct_pivot": "Remove the size constraint. Evaluate frontier models like LLaMA 70B or Mixtral. Prioritize output quality over efficiency.",
-    "wrong_pivots": ["Keep the small model anyway", "Use a 1B parameter model", "Ignore the budget increase"]
+    "wrong_pivots": [
+      "Keep the small model anyway",
+      "Use a 1B parameter model",
+      "Ignore the budget increase"
+    ],
+    "holdout": false
   },
   {
     "id": 18,
@@ -159,7 +244,12 @@
     "hidden_interpretation": "Build a streaming data loader that processes data on-the-fly from S3 to avoid loading 500GB dataset into memory.",
     "context_shift": "The dataset is now only 2GB and must be processed faster. Loading everything into memory is preferred for speed.",
     "correct_pivot": "Switch from streaming to in-memory data loading. Load full dataset into RAM at startup. Use faster pin_memory and num_workers settings.",
-    "wrong_pivots": ["Keep streaming loader anyway", "Use a database instead", "Ignore the dataset size change"]
+    "wrong_pivots": [
+      "Keep streaming loader anyway",
+      "Use a database instead",
+      "Ignore the dataset size change"
+    ],
+    "holdout": false
   },
   {
     "id": 19,
@@ -168,7 +258,12 @@
     "hidden_interpretation": "Run standard NLP benchmarks including GLUE and SuperGLUE to compare against baseline models.",
     "context_shift": "The model is domain-specific for legal documents. Standard benchmarks are irrelevant. Legal domain benchmarks are required.",
     "correct_pivot": "Drop GLUE and SuperGLUE. Source legal domain benchmarks like LegalBench. Create custom evaluation sets from real legal documents.",
-    "wrong_pivots": ["Keep GLUE benchmarks anyway", "Skip benchmarking entirely", "Use medical benchmarks instead"]
+    "wrong_pivots": [
+      "Keep GLUE benchmarks anyway",
+      "Skip benchmarking entirely",
+      "Use medical benchmarks instead"
+    ],
+    "holdout": false
   },
   {
     "id": 20,
@@ -177,7 +272,12 @@
     "hidden_interpretation": "Deploy using TGI with tensor parallelism across 2 GPUs for high throughput serving.",
     "context_shift": "The expected traffic dropped by 90%. A single GPU serverless setup is now sufficient and more cost effective.",
     "correct_pivot": "Drop the multi-GPU TGI setup. Switch to a serverless deployment like Hugging Face Inference Endpoints on a single GPU instance.",
-    "wrong_pivots": ["Keep the 2 GPU setup anyway", "Use CPU serving instead", "Ignore the traffic change"]
+    "wrong_pivots": [
+      "Keep the 2 GPU setup anyway",
+      "Use CPU serving instead",
+      "Ignore the traffic change"
+    ],
+    "holdout": true
   },
   {
     "id": 21,
@@ -186,7 +286,12 @@
     "hidden_interpretation": "Apply text augmentation techniques like back-translation, synonym replacement, and random insertion for an NLP model.",
     "context_shift": "The model will now be trained on code, not natural language. Text augmentation techniques are inappropriate for code.",
     "correct_pivot": "Switch to code-specific augmentation: variable renaming, comment removal, whitespace normalization, and equivalent code transformations.",
-    "wrong_pivots": ["Apply text augmentation to code anyway", "Skip augmentation entirely", "Use image augmentation techniques"]
+    "wrong_pivots": [
+      "Apply text augmentation to code anyway",
+      "Skip augmentation entirely",
+      "Use image augmentation techniques"
+    ],
+    "holdout": false
   },
   {
     "id": 22,
@@ -195,7 +300,12 @@
     "hidden_interpretation": "Select a conversational model fine-tuned on dialogue datasets with strong multi-turn conversation abilities.",
     "context_shift": "The chatbot will only answer single-turn questions about a product manual. Multi-turn conversation is not needed.",
     "correct_pivot": "Switch to a strong question-answering model instead of a conversational one. Prioritize factual accuracy over dialogue flow.",
-    "wrong_pivots": ["Keep the conversational model anyway", "Use a code model", "Pick the largest model available"]
+    "wrong_pivots": [
+      "Keep the conversational model anyway",
+      "Use a code model",
+      "Pick the largest model available"
+    ],
+    "holdout": false
   },
   {
     "id": 23,
@@ -204,7 +314,12 @@
     "hidden_interpretation": "Use AdamW with weight decay 0.01 and cosine learning rate schedule for stable transformer training.",
     "context_shift": "The model switched to a recurrent architecture. AdamW is suboptimal for RNNs.",
     "correct_pivot": "Switch optimizer to RMSprop which handles RNN gradient statistics better. Adjust learning rate schedule to step decay instead of cosine.",
-    "wrong_pivots": ["Keep AdamW anyway", "Use SGD with no schedule", "Ignore the architecture change"]
+    "wrong_pivots": [
+      "Keep AdamW anyway",
+      "Use SGD with no schedule",
+      "Ignore the architecture change"
+    ],
+    "holdout": false
   },
   {
     "id": 24,
@@ -213,7 +328,12 @@
     "hidden_interpretation": "Run a 50/50 traffic split between old and new model for 2 weeks, measuring click-through rate as the primary metric.",
     "context_shift": "The old model is being deprecated immediately. There is no baseline to compare against. Absolute quality metrics are needed instead.",
     "correct_pivot": "Drop the A/B test framework. Switch to absolute quality evaluation using human raters and automated metrics against a golden test set.",
-    "wrong_pivots": ["Keep A/B test setup anyway", "Cancel evaluation entirely", "Compare against a random baseline"]
+    "wrong_pivots": [
+      "Keep A/B test setup anyway",
+      "Cancel evaluation entirely",
+      "Compare against a random baseline"
+    ],
+    "holdout": false
   },
   {
     "id": 25,
@@ -222,6 +342,11 @@
     "hidden_interpretation": "Build a GitHub Actions pipeline that runs tests, builds a Docker image, and auto-deploys to staging on every PR merge.",
     "context_shift": "The team moved from GitHub to GitLab. The entire CI/CD configuration format is different.",
     "correct_pivot": "Rewrite the pipeline in GitLab CI/CD YAML format. Replace GitHub Actions syntax with GitLab equivalents. Update all runner configurations.",
-    "wrong_pivots": ["Keep GitHub Actions config anyway", "Deploy manually without CI/CD", "Ignore the platform change"]
+    "wrong_pivots": [
+      "Keep GitHub Actions config anyway",
+      "Deploy manually without CI/CD",
+      "Ignore the platform change"
+    ],
+    "holdout": false
   }
 ]

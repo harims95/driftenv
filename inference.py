@@ -13,6 +13,7 @@ API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME   = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 API_KEY      = os.getenv("HF_TOKEN") or os.getenv("API_KEY", "")
 ENV_BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:8000")
+HOLDOUT_ONLY = os.getenv("HOLDOUT_ONLY", "false").lower() == "true"
 BENCHMARK    = "driftenv"
 
 TASKS = ["easy", "medium", "hard"]
@@ -44,7 +45,7 @@ def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> No
     print(f"[END] success={str(success).lower()} steps={steps} score={score:.3f} rewards={rewards_str}", flush=True)
 
 def env_reset(task: str) -> dict:
-    resp = requests.post(f"{ENV_BASE_URL}/reset", json={"task": task}, timeout=30)
+    resp = requests.post(f"{ENV_BASE_URL}/reset", json={"task": task, "holdout_only": HOLDOUT_ONLY}, timeout=30)
     resp.raise_for_status()
     return resp.json()
 

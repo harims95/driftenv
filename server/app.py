@@ -171,9 +171,10 @@ def _observe() -> dict:
     }
 
 
-def reset(task: str = "medium") -> dict:
+def reset(task: str = "medium", holdout_only: bool = False) -> dict:
     global _state
-    scenario = random.choice(SCENARIOS)
+    pool = [s for s in SCENARIOS if s["holdout"]] if holdout_only else [s for s in SCENARIOS if not s["holdout"]]
+    scenario = random.choice(pool)
     _state = {
         "scenario": scenario,
         "task": task,
@@ -324,7 +325,8 @@ class DriftEnvironment(Environment):
 
     def reset(self, seed=None, episode_id=None, **kwargs) -> _DriftEnvObservation:
         task = kwargs.get("task", "medium")
-        reset(task=task)
+        holdout_only = bool(kwargs.get("holdout_only", False))
+        reset(task=task, holdout_only=holdout_only)
         return self._observe()
 
     def step(self, action: _DriftEnvAction, timeout_s=None, **kwargs) -> _DriftEnvObservation:
