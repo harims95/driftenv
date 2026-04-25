@@ -61,4 +61,11 @@ Build GRPO training notebook in Colab per CLAUDE.md cells A–F.
 T4 dry run first, then switch to A10G for real run.
 Use `HOLDOUT_ONLY=false` during training, `HOLDOUT_ONLY=true` for final eval.
 
+**Tomorrow must record THREE comparison numbers on holdout set:**
+1. Untrained Qwen 1.5B on holdout (run before training starts)
+2. Trained Qwen 1.5B on holdout (run after training — the headline metric)
+3. Qwen 72B reference on holdout — already have this: **~0.378** (avg of 2 runs)
+
+The story: 1.5B trained > 1.5B untrained, compared against 72B reference.
+
 ---
