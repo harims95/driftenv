@@ -41,23 +41,112 @@ _state = {
     "completion_score": None,
     "done": False,
     "history": [],
+    "prev_responses": [],  # agent responses per step, used for pivot/no_stale scoring
 }
 
-def _score(agent_response: str, correct_answer: str, wrong_answers: list) -> tuple:
-    agent_lower = agent_response.lower()
-    correct_lower = correct_answer.lower()
-    keywords = [w for w in correct_lower.split() if len(w) > 4]
-    hits = sum(1 for kw in keywords if kw in agent_lower)
-    ratio = hits / max(len(keywords), 1)
-    wrong_match = any(w.lower()[:30] in agent_lower for w in wrong_answers)
-    is_clarifying = "?" in agent_response and len(agent_response) < 400
+# ---------------------------------------------------------------------------
+# Reward component helpers
+# ---------------------------------------------------------------------------
+
+def _score_format(response: str) -> float:
+    """R_format: reward concise, structured responses."""
+    n = len(response)
+    if n < 200:
+        return 1.0
+    if n < 500:
+        return 0.5
+    return 0.0
+
+
+def _score_interpretation(response: str, hidden_interpretation: str) -> float:
+    """R_interpretation: keyword overlap with the hidden correct interpretation."""
+    resp_lower = response.lower()
+    keywords = [w for w in hidden_interpretation.lower().split() if len(w) > 4]
+    if not keywords:
+        return 0.0
+    hits = sum(1 for kw in keywords if kw in resp_lower)
+    # Linear scale: ratio >= 0.4 → 1.0, proportional below
+    return round(min(hits / len(keywords) / 0.4, 1.0), 4)
+
+
+def _score_pivot(response: str, correct_pivot: str, step1_response: Optional[str]) -> float:
+    """R_pivot: on step >= 2, keyword overlap with correct_pivot AND lexical
+    distance from the agent's own step-1 response (proves actual pivot, not luck)."""
+    if step1_response is None:
+        return 0.0
+
+    resp_lower = response.lower()
+
+    # (a) keyword overlap with correct pivot
+    keywords = [w for w in correct_pivot.lower().split() if len(w) > 4]
+    if keywords:
+        hits = sum(1 for kw in keywords if kw in resp_lower)
+        kw_score = min(hits / len(keywords) / 0.4, 1.0)
+    else:
+        kw_score = 0.0
+
+    # (b) lexical distance from step-1 response (0 = identical, 1 = fully different)
+    prev_words = set(w for w in step1_response.lower().split() if len(w) > 3)
+    curr_words = set(w for w in resp_lower.split() if len(w) > 3)
+    if prev_words:
+        shared = len(prev_words & curr_words)
+        lexical_dist = 1.0 - (shared / len(prev_words))
+    else:
+        lexical_dist = 1.0
+
+    return round((kw_score + lexical_dist) / 2, 4)
+
+
+def _score_no_stale(response: str, wrong_pivots: list, step1_response: Optional[str]) -> float:
+    """R_no_stale: on step >= 2, penalise responses that match wrong_pivots or
+    are too similar to the agent's step-1 response (anti-reward-hacking signal)."""
+    if step1_response is None:
+        return 1.0  # step 1 — nothing can be stale yet
+
+    resp_lower = response.lower()
+
+    # Hard zero if response echoes a known wrong pivot
+    wrong_match = any(w.lower()[:30] in resp_lower for w in wrong_pivots)
     if wrong_match:
-        return 0.0, "Response matched a known incorrect approach."
-    if ratio >= 0.4:
-        return 1.0, f"Strong match ({hits}/{len(keywords)} keywords)."
-    if ratio >= 0.15 or is_clarifying:
-        return 0.5, "Partial match or clarifying question."
-    return 0.0, "Response did not match correct approach."
+        return 0.0
+
+    # Graded penalty for repeating step-1 content
+    prev_words = set(w for w in step1_response.lower().split() if len(w) > 3)
+    curr_words = set(w for w in resp_lower.split() if len(w) > 3)
+    if prev_words:
+        shared = len(prev_words & curr_words)
+        similarity = shared / len(prev_words)
+        if similarity > 0.7:
+            return 0.0
+        if similarity > 0.4:
+            return round(1.0 - similarity, 4)
+
+    return 1.0
+
+
+def _compute_reward(
+    action: str,
+    scenario: dict,
+    step1_response: Optional[str],
+) -> tuple[float, dict]:
+    """Compute all 4 reward components and return (weighted_total, components_dict)."""
+    r_fmt    = _score_format(action)
+    r_interp = _score_interpretation(action, scenario["hidden_interpretation"])
+    r_pivot  = _score_pivot(action, scenario["correct_pivot"], step1_response)
+    r_stale  = _score_no_stale(action, scenario.get("wrong_pivots", []), step1_response)
+
+    total = round(0.1 * r_fmt + 0.3 * r_interp + 0.4 * r_pivot + 0.2 * r_stale, 4)
+    components = {
+        "R_format": round(r_fmt, 4),
+        "R_interpretation": round(r_interp, 4),
+        "R_pivot": round(r_pivot, 4),
+        "R_no_stale": round(r_stale, 4),
+    }
+    return total, components
+
+# ---------------------------------------------------------------------------
+# Core env logic
+# ---------------------------------------------------------------------------
 
 def _observe() -> dict:
     s = _state["scenario"]
@@ -69,6 +158,7 @@ def _observe() -> dict:
         "done": _state["done"],
         "task": _state["task"],
     }
+
 
 def reset(task: str = "medium") -> dict:
     global _state
@@ -83,8 +173,10 @@ def reset(task: str = "medium") -> dict:
         "completion_score": None,
         "done": False,
         "history": [],
+        "prev_responses": [],
     }
     return _observe()
+
 
 def step(action: str) -> dict:
     if _state["done"]:
@@ -95,28 +187,31 @@ def step(action: str) -> dict:
             "done": True,
             "info": {"error": "Episode finished. Call reset() to start a new episode."},
         }
+
     s = _state["scenario"]
     task = _state["task"]
     _state["step_count"] += 1
     n = _state["step_count"]
-    reward = 0.0
-    feedback = ""
-    phase = ""
+
+    # step-1 response is the pivot/no_stale reference for all subsequent steps
+    step1_response = _state["prev_responses"][0] if _state["prev_responses"] else None
+    _state["prev_responses"].append(action)
+
+    reward, components = _compute_reward(action, s, step1_response)
     final_score = None
+    phase = ""
 
     if n == 1:
         phase = "interpretation"
-        reward, feedback = _score(action, s["hidden_interpretation"], s.get("wrong_pivots", []))
         _state["interpretation_score"] = reward
         if task == "easy":
             _state["done"] = True
-            final_score = round(reward, 4)
+            final_score = reward
         else:
             _state["shift_triggered"] = True
 
     elif n == 2:
         phase = "pivot"
-        reward, feedback = _score(action, s["correct_pivot"], s.get("wrong_pivots", []))
         _state["pivot_score"] = reward
         if task == "medium":
             scores = [_state["interpretation_score"], _state["pivot_score"]]
@@ -125,15 +220,27 @@ def step(action: str) -> dict:
 
     elif n == 3:
         phase = "completion"
-        combined = s["correct_pivot"] + " " + s["hidden_interpretation"]
-        reward, feedback = _score(action, combined, s.get("wrong_pivots", []))
+        # Hard mode: agent must score well on BOTH R_interpretation (remembered
+        # original intent) and R_pivot (executed the shift) simultaneously.
+        # The weighted formula already enforces this — no separate code needed.
         _state["completion_score"] = reward
         scores = [_state["interpretation_score"], _state["pivot_score"], _state["completion_score"]]
         final_score = round(sum(scores) / len(scores), 4)
         _state["done"] = True
 
-    _state["history"].append({"step": n, "phase": phase, "action": action[:300], "reward": reward})
-    info = {"phase": phase, "feedback": feedback, "task": task}
+    _state["history"].append({
+        "step": n,
+        "phase": phase,
+        "action": action[:300],
+        "reward": reward,
+        "rewards": components,
+    })
+
+    info = {
+        "phase": phase,
+        "task": task,
+        "rewards": components,
+    }
     if _state["done"] and final_score is not None:
         info["final_score"] = final_score
         info["breakdown"] = {
@@ -141,6 +248,7 @@ def step(action: str) -> dict:
             "pivot": _state["pivot_score"],
             "completion": _state["completion_score"],
         }
+
     return {
         "observation": _observe(),
         "reward": reward,
@@ -148,6 +256,7 @@ def step(action: str) -> dict:
         "done": _state["done"],
         "info": info,
     }
+
 
 def state() -> dict:
     s = _state["scenario"]
