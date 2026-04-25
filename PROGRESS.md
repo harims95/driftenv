@@ -39,8 +39,26 @@ This is the floor we need to match or beat tomorrow with trained Qwen 1.5B.
 ### Currently broken / known issues
 - None
 
+### Task A — holdout split (same session)
+- [x] 5 holdout scenarios tagged: IDs 1,3,7,14,20 (one per domain, cleanest drift)
+- [x] `reset(holdout_only=False)` — default samples from 20 training scenarios only
+- [x] `reset(holdout_only=True)` — samples from 5 holdout scenarios only
+- [x] `HOLDOUT_ONLY` env var wired into inference.py
+- [x] Zero leakage verified (10 default resets, 20 holdout resets)
+- [x] Baselines saved:
+  - `samples/baseline_train_v3.txt` — training set overall: **0.327**
+  - `samples/baseline_holdout_v3.txt` — holdout set overall: **0.429**
+  - Best single step: holdout hard step 2 = 0.81 (scenario 20, serverless pivot)
+
+### Baseline summary (untrained Qwen2.5-72B, multi-reward-v2 + anti-hack patch)
+| split | easy | medium | hard | overall |
+|-------|------|--------|------|---------|
+| training (20) | 0.200 | 0.397 | 0.385 | 0.327 |
+| holdout (5)   | 0.307 | 0.370 | 0.611 | 0.429 |
+
 ### Tomorrow's first action
 Build GRPO training notebook in Colab per CLAUDE.md cells A–F.
 T4 dry run first, then switch to A10G for real run.
+Use `HOLDOUT_ONLY=false` during training, `HOLDOUT_ONLY=true` for final eval.
 
 ---
