@@ -30,6 +30,12 @@ This is the floor we need to match or beat tomorrow with trained Qwen 1.5B.
 - `README.md` (untouched, will rewrite tomorrow afternoon)
 - `main` branch (untouched, HF Space still serves v1)
 
+### Patch B (same session, late night)
+- [x] `_extract_unique_keywords` helper added — strips words visible in instruction/context_shift from keyword pools
+- [x] `_score_interpretation` and `_score_pivot` now use unique keywords only
+- [x] Verified: v1 overall 0.436 → v2 overall 0.456 (+0.020), no reward sparsity
+- [x] `samples/baseline_local_v2.txt` saved and committed
+
 ### Currently broken / known issues
 - None
 
