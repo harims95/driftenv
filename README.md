@@ -102,7 +102,7 @@ We ran 5 structured training experiments. Each tested a hypothesis.
 
 Four GRPO runs with increasingly aggressive length penalties all showed clipped_ratio=1.0. The model hit max length every time. RL penalty alone cannot override pre-trained verbosity. SFT warm-start on concise examples first, then GRPO on top, solved it. Training loss went from 0.000 to 0.001. Actual weight updates finally happened. This matches Guide Section 3 exactly.
 
-One scenario (deployment domain, ID 20) scored **0.514**, beating the Qwen 72B reference model with a model 50x smaller.
+"One scenario (deployment domain, ID 20) scored 0.514 vs the 72B reference score of 0.436 — showing targeted RL training can close the gap between small and large models on specific tasks. Overall our trained 1.5B reached 78.6% of 72B performance across all holdout scenarios."
 
 ---
 
