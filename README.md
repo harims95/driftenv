@@ -14,7 +14,7 @@ tags:
 
 **An RL environment for training AI agents to handle ambiguous instructions and mid-task context shifts.**
 
-> [Full story](https://medium.com/@hariharanms95/how-a-self-taught-builder-with-no-coding-background-made-it-to-the-meta-pytorch-grand-finale-89ae760ec5aa) | [Live Demo](https://huggingface.co/spaces/harims95/driftenv) | [Trained Model](https://huggingface.co/harims95/driftenv-qwen1.5b-sft-grpo) | [GitHub](https://github.com/harims95/driftenv) | [Training Notebook](colab link here)
+> [Full story](https://medium.com/@hariharanms95/how-a-self-taught-builder-with-no-coding-background-made-it-to-the-meta-pytorch-grand-finale-89ae760ec5aa) | [Live Demo](https://huggingface.co/spaces/harims95/driftenv) | [Trained Model](https://huggingface.co/harims95/driftenv-qwen1.5b-sft-grpo) | [GitHub](https://github.com/harims95/driftenv) | [Training Notebook](https://colab.research.google.com/drive/1W7rjOLJ7g8yAp5_RcJ-2ntGdDTg8KeMY?usp=sharing)
 
 ---
 
